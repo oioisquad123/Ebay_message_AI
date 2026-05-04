@@ -14,7 +14,7 @@
  *
  * `runEval` is exported so unit tests can drive it with mocked fetch.
  */
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import {
   type Category,
@@ -25,11 +25,13 @@ import {
 } from "@app/shared";
 import {
   EvalCaseSchema,
+  EvalReportSchema,
   type EvalCase,
   type EvalCaseResult,
   type EvalReport,
 } from "./schema.js";
 import { computeMacroF1, type PredictionPair } from "./metrics.js";
+import { diffReports } from "./diff.js";
 
 export interface RunEvalOptions {
   apiBase: string;
@@ -40,6 +42,8 @@ export interface RunEvalOptions {
   thresholdAccuracy: number;
   thresholdFactuality: number;
   printDrafts: boolean;
+  /** Optional baseline EvalReport JSON path for regression diff output. */
+  baselinePath: string | null;
   /** For tests: inject fetch. Defaults to global fetch. */
   fetchImpl?: typeof fetch;
   /** For tests: inject stdout/stderr. Defaults to console.log/error. */
@@ -69,6 +73,7 @@ const DEFAULT_OPTS: RunEvalOptions = {
   thresholdAccuracy: 0.8,
   thresholdFactuality: 1.0,
   printDrafts: false,
+  baselinePath: null,
 };
 
 /** Existing stub kept so any external imports of `describe()` keep working. */
@@ -324,6 +329,47 @@ export async function runEval(
     }
   }
 
+  // Regression diff vs. baseline (V0 Day 10). Pure: load file → diff → log.
+  // If baseline file is missing, warn and skip — don't fail. If baseline is
+  // unparseable, surface the error so a corrupted baseline doesn't quietly
+  // suppress the regression gate.
+  if (opts.baselinePath) {
+    if (!existsSync(opts.baselinePath)) {
+      errLog(
+        `WARNING: baseline file not found at ${opts.baselinePath} — skipping regression diff`,
+      );
+    } else {
+      const baselineRaw = loadJson<unknown>(opts.baselinePath);
+      const parsed = EvalReportSchema.safeParse(baselineRaw);
+      if (!parsed.success) {
+        errLog(
+          `WARNING: baseline file ${opts.baselinePath} failed schema validation — skipping regression diff`,
+        );
+      } else {
+        const diff = diffReports(parsed.data, report);
+        log("");
+        log(`Regression diff vs baseline (${opts.baselinePath}):`);
+        for (const line of diff.summary_lines) log(line);
+        if (opts.failOnRegression && diff.has_regression) {
+          if (diff.regressed_cases.length > 0) {
+            errLog(
+              `REGRESSION: ${diff.regressed_cases.length} case(s) regressed vs baseline`,
+            );
+          }
+          const drops = Object.entries(diff.per_category_f1_delta).filter(
+            ([, d]) => d < -0.05,
+          );
+          if (drops.length > 0) {
+            errLog(
+              `REGRESSION: ${drops.length} category F1 drop(s) > 5 points vs baseline`,
+            );
+          }
+          exitCode = 1;
+        }
+      }
+    }
+  }
+
   return { report, exitCode };
 }
 
@@ -366,6 +412,9 @@ function parseArgs(argv: string[]): Partial<RunEvalOptions> {
       case "--print-drafts":
         out.printDrafts = true;
         break;
+      case "--baseline":
+        out.baselinePath = next();
+        break;
       case "-h":
       case "--help":
         // eslint-disable-next-line no-console
@@ -395,6 +444,10 @@ Options:
   --threshold-accuracy <0..1>   Default: 0.8
   --threshold-factuality <0..1> Default: 1.0
   --print-drafts                Print each draft to stdout
+  --baseline <path>             Saved EvalReport JSON to diff against. Logs a
+                                regression section to stdout. With
+                                --fail-on-regression, exits 1 on any case
+                                regression or category F1 drop > 5 points.
 `;
 
 async function main(): Promise<void> {

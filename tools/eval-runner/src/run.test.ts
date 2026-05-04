@@ -284,6 +284,212 @@ describe("runEval", () => {
     }
   });
 
+  test("--baseline flag: diff appears in stdout when baseline file is loaded", async () => {
+    const cases = [
+      {
+        id: "case-1-sizing",
+        fixture_message: "messages/case-1-sizing.json",
+        expected: { category: "sizing_measurements" },
+      },
+    ];
+    const tmp = setupTmp(cases);
+    const baselinePath = `/tmp/eval-baseline-test-${Date.now()}-load.json`;
+    try {
+      // Build a baseline report with the same case all-passing.
+      const baselineReport = {
+        generated_at: "2026-05-04T00:00:00.000Z",
+        api_base: "http://mock",
+        total_cases: 1,
+        category_accuracy: 1,
+        category_macro_f1: 1,
+        factuality_pass_rate: 1,
+        flag_policy_pass_rate: 1,
+        excerpt_match_rate: 1,
+        total_cost_cents: 0.05,
+        total_tokens_in: 100,
+        total_tokens_out: 50,
+        per_category: {
+          sizing_measurements: { precision: 1, recall: 1, f1: 1, support: 1 },
+        },
+        cases: [
+          {
+            id: "case-1-sizing",
+            expected_category: "sizing_measurements",
+            predicted_category: "sizing_measurements",
+            category_correct: true,
+            factuality_pass: true,
+            flag_policy_pass: true,
+            excerpt_match: true,
+            missing_facts: [],
+            forbidden_flags_returned: [],
+            draft: "Thanks!",
+            used_facts: [],
+            flags: [],
+            confidence: 0.9,
+            cost_cents: 0.05,
+            tokens_in: 100,
+            tokens_out: 50,
+          },
+        ],
+      };
+      writeFileSync(baselinePath, JSON.stringify(baselineReport));
+
+      const fetchImpl = makeFetch([
+        makeDraftResponse({ category: "sizing_measurements" }),
+      ]);
+      const logs: string[] = [];
+      const { exitCode } = await runEval({
+        apiBase: "http://mock",
+        casesDir: tmp.casesDir,
+        fixturesDir: tmp.fixturesDir,
+        reportPath: null,
+        failOnRegression: false,
+        thresholdAccuracy: 0.8,
+        thresholdFactuality: 1.0,
+        printDrafts: false,
+        baselinePath,
+        fetchImpl,
+        log: (s) => logs.push(s),
+        errLog: () => {},
+      });
+      expect(exitCode).toBe(0);
+      // The diff section should appear in stdout
+      expect(
+        logs.some((l) => l.includes("Regression diff vs baseline")),
+      ).toBe(true);
+      expect(logs.some((l) => l.includes("category_accuracy"))).toBe(true);
+    } finally {
+      tmp.cleanup();
+      try {
+        rmSync(baselinePath, { force: true });
+      } catch {
+        /* ignore */
+      }
+    }
+  });
+
+  test("--baseline + --fail-on-regression: exit 1 when current regresses vs baseline", async () => {
+    const cases = [
+      {
+        id: "case-1-sizing",
+        fixture_message: "messages/case-1-sizing.json",
+        expected: { category: "sizing_measurements" },
+      },
+    ];
+    const tmp = setupTmp(cases);
+    const baselinePath = `/tmp/eval-baseline-test-${Date.now()}-fail.json`;
+    try {
+      // Baseline: case passed (correct category + factuality).
+      const baselineReport = {
+        generated_at: "2026-05-04T00:00:00.000Z",
+        api_base: "http://mock",
+        total_cases: 1,
+        category_accuracy: 1,
+        category_macro_f1: 1,
+        factuality_pass_rate: 1,
+        flag_policy_pass_rate: 1,
+        excerpt_match_rate: 1,
+        total_cost_cents: 0.05,
+        total_tokens_in: 100,
+        total_tokens_out: 50,
+        per_category: {
+          sizing_measurements: { precision: 1, recall: 1, f1: 1, support: 1 },
+        },
+        cases: [
+          {
+            id: "case-1-sizing",
+            expected_category: "sizing_measurements",
+            predicted_category: "sizing_measurements",
+            category_correct: true,
+            factuality_pass: true,
+            flag_policy_pass: true,
+            excerpt_match: true,
+            missing_facts: [],
+            forbidden_flags_returned: [],
+            draft: "Thanks!",
+            used_facts: [],
+            flags: [],
+            confidence: 0.9,
+            cost_cents: 0.05,
+            tokens_in: 100,
+            tokens_out: 50,
+          },
+        ],
+      };
+      writeFileSync(baselinePath, JSON.stringify(baselineReport));
+
+      // Current: predicts wrong category → category regression.
+      // Threshold accuracy is 0 so the standard threshold check passes; the
+      // baseline regression gate is what trips exit 1 here.
+      const fetchImpl = makeFetch([
+        makeDraftResponse({ category: "shipping_timeline" }),
+      ]);
+      const errs: string[] = [];
+      const { exitCode } = await runEval({
+        apiBase: "http://mock",
+        casesDir: tmp.casesDir,
+        fixturesDir: tmp.fixturesDir,
+        reportPath: null,
+        failOnRegression: true,
+        thresholdAccuracy: 0,
+        thresholdFactuality: 0,
+        printDrafts: false,
+        baselinePath,
+        fetchImpl,
+        log: () => {},
+        errLog: (s) => errs.push(s),
+      });
+      expect(exitCode).toBe(1);
+      expect(
+        errs.some((e) => e.includes("regressed vs baseline")),
+      ).toBe(true);
+    } finally {
+      tmp.cleanup();
+      try {
+        rmSync(baselinePath, { force: true });
+      } catch {
+        /* ignore */
+      }
+    }
+  });
+
+  test("--baseline pointing at non-existent file: warns and skips, no failure", async () => {
+    const cases = [
+      {
+        id: "case-1-sizing",
+        fixture_message: "messages/case-1-sizing.json",
+        expected: { category: "sizing_measurements" },
+      },
+    ];
+    const tmp = setupTmp(cases);
+    try {
+      const fetchImpl = makeFetch([
+        makeDraftResponse({ category: "sizing_measurements" }),
+      ]);
+      const errs: string[] = [];
+      const { exitCode } = await runEval({
+        apiBase: "http://mock",
+        casesDir: tmp.casesDir,
+        fixturesDir: tmp.fixturesDir,
+        reportPath: null,
+        failOnRegression: true,
+        thresholdAccuracy: 0.8,
+        thresholdFactuality: 1.0,
+        printDrafts: false,
+        baselinePath: `/tmp/definitely-does-not-exist-${Date.now()}.json`,
+        fetchImpl,
+        log: () => {},
+        errLog: (s) => errs.push(s),
+      });
+      expect(exitCode).toBe(0);
+      expect(
+        errs.some((e) => e.includes("baseline file not found")),
+      ).toBe(true);
+    } finally {
+      tmp.cleanup();
+    }
+  });
+
   test("fetch rejection surfaces as ApiUnreachableError", async () => {
     const cases = [
       {
