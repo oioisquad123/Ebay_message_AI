@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import type {
+  Category,
   MessageListItem,
   MessageListQuery,
   MessageStatus,
 } from "@app/shared/contracts";
-import { useMessageList } from "../lib/api.js";
+import { useApproveDraft, useMessageList } from "../lib/api.js";
 import {
   STATUS_LABEL,
   STATUS_PILL_CLASS,
@@ -43,11 +44,22 @@ function buildSingleQuery(
 export function InboxPage() {
   const [filter, setFilter] = useState<FilterValue>("all");
   const [cursor, setCursor] = useState<string | undefined>(undefined);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
-  // Reset cursor when filter changes.
+  // Reset cursor + selection when filter changes.
   const handleFilter = (v: FilterValue) => {
     setFilter(v);
     setCursor(undefined);
+    setSelected(new Set());
+  };
+
+  const toggleSelected = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
   const singleQuery = buildSingleQuery(filter, cursor);
@@ -151,9 +163,19 @@ export function InboxPage() {
             className="divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 bg-white"
           >
             {items.map((m) => (
-              <MessageRow key={m.id} item={m} />
+              <MessageRow
+                key={m.id}
+                item={m}
+                selected={selected.has(m.id)}
+                onToggle={() => toggleSelected(m.id)}
+              />
             ))}
           </ul>
+          <BatchApproveBar
+            items={items}
+            selected={selected}
+            onClear={() => setSelected(new Set())}
+          />
           {hasMore && (
             <div className="mt-4 flex justify-center">
               <button
@@ -197,15 +219,41 @@ function EmptyState() {
   );
 }
 
-function MessageRow({ item }: { item: MessageListItem }) {
+function MessageRow({
+  item,
+  selected,
+  onToggle,
+}: {
+  item: MessageListItem;
+  selected: boolean;
+  onToggle: () => void;
+}) {
+  const canBatchApprove =
+    item.status === "drafted" && item.draft_id !== null;
   return (
-    <li>
+    <li className="flex items-stretch hover:bg-gray-50">
+      <label
+        className={`flex shrink-0 items-center pl-4 pr-2 ${
+          canBatchApprove ? "cursor-pointer" : "cursor-not-allowed opacity-40"
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <input
+          type="checkbox"
+          data-testid={`select-${item.id}`}
+          checked={selected}
+          disabled={!canBatchApprove}
+          onChange={onToggle}
+          aria-label={`Select message from ${item.buyer_username}`}
+          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+        />
+      </label>
       <Link
         href={`/messages/${item.id}`}
         data-testid={`row-${item.id}`}
-        className="block hover:bg-gray-50"
+        className="block flex-1"
       >
-        <div className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:gap-4">
+        <div className="flex flex-col gap-2 py-3 pr-4 sm:flex-row sm:items-center sm:gap-4">
           <div className="w-32 shrink-0 truncate font-semibold text-gray-900">
             {item.buyer_username}
           </div>
@@ -240,5 +288,122 @@ function MessageRow({ item }: { item: MessageListItem }) {
         </div>
       </Link>
     </li>
+  );
+}
+
+function BatchApproveBar({
+  items,
+  selected,
+  onClear,
+}: {
+  items: MessageListItem[];
+  selected: Set<string>;
+  onClear: () => void;
+}) {
+  const approve = useApproveDraft();
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const selectedItems = useMemo(
+    () => items.filter((m) => selected.has(m.id)),
+    [items, selected],
+  );
+
+  const categories = useMemo(() => {
+    const set = new Set<Category>();
+    for (const m of selectedItems) {
+      if (m.category) set.add(m.category);
+    }
+    return set;
+  }, [selectedItems]);
+
+  if (selected.size === 0) return null;
+
+  const sameCategory = categories.size === 1;
+  const onlyCategory: Category | null = sameCategory
+    ? (categories.values().next().value as Category)
+    : null;
+  const canApprove = sameCategory && !approve.isPending;
+
+  const handleApproveAll = async () => {
+    setError(null);
+    setProgress({ done: 0, total: selectedItems.length });
+    let done = 0;
+    for (const item of selectedItems) {
+      try {
+        await approve.mutateAsync({ messageId: item.id });
+      } catch (e) {
+        setError(
+          `Failed on ${item.buyer_username}: ${
+            (e as { message?: string })?.message ?? "unknown error"
+          }`,
+        );
+        setProgress(null);
+        return;
+      }
+      done += 1;
+      setProgress({ done, total: selectedItems.length });
+    }
+    setProgress(null);
+    onClear();
+  };
+
+  return (
+    <div
+      data-testid="batch-approve-bar"
+      role="region"
+      aria-label="Batch approve"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white shadow-lg"
+    >
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3">
+        <span className="text-sm font-medium text-gray-900">
+          {selected.size} selected
+        </span>
+        {sameCategory && onlyCategory && (
+          <span
+            className={`rounded-full border px-2 py-0.5 text-xs ${categoryClass(onlyCategory)}`}
+          >
+            {categoryLabel(onlyCategory)}
+          </span>
+        )}
+        {!sameCategory && (
+          <span
+            data-testid="batch-mixed-warning"
+            className="text-xs text-amber-700"
+          >
+            Mixed categories — select one category at a time.
+          </span>
+        )}
+        {progress && (
+          <span data-testid="batch-progress" className="text-xs text-gray-600">
+            Approving {progress.done} of {progress.total}…
+          </span>
+        )}
+        {error && (
+          <span role="alert" className="text-xs text-red-700">
+            {error}
+          </span>
+        )}
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onClear}
+            data-testid="batch-clear"
+            className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Clear
+          </button>
+          <button
+            type="button"
+            onClick={handleApproveAll}
+            disabled={!canApprove}
+            data-testid="batch-approve"
+            className="rounded-md bg-green-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+          >
+            Approve {selected.size}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
