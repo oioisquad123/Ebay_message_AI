@@ -326,4 +326,120 @@ describe("MessageDetailPage", () => {
     expect(screen.getByTestId("regenerate")).toBeDisabled();
     expect(screen.getByTestId("skip")).toBeDisabled();
   });
+
+  it("renders the keyboard-shortcuts hint footer", async () => {
+    setupFetch(() => jsonRes(makeDetail()));
+    renderDetail();
+    const hint = await screen.findByTestId("shortcuts-hint");
+    expect(hint).toHaveTextContent(/J\b/);
+    expect(hint).toHaveTextContent(/K\b/);
+    expect(hint).toHaveTextContent(/A\b/);
+    expect(hint).toHaveTextContent(/E\b/);
+    expect(hint).toHaveTextContent(/S\b/);
+  });
+
+  it("pressing E focuses the draft textarea", async () => {
+    setupFetch(() => jsonRes(makeDetail()));
+    renderDetail();
+    const ta = (await screen.findByTestId("draft-textarea")) as HTMLTextAreaElement;
+    expect(document.activeElement).not.toBe(ta);
+    fireEvent.keyDown(window, { key: "e" });
+    expect(document.activeElement).toBe(ta);
+  });
+
+  it("pressing S triggers skip after confirm", async () => {
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    const fetchSpy = setupFetch((url) => {
+      if (url === "/api/v1/messages/m1") return jsonRes(makeDetail());
+      if (url === "/api/v1/messages/m1/skip") {
+        const body: SkipMessageResponse = { ok: true, status: "skipped" };
+        return jsonRes(body);
+      }
+      return new Response("not found", { status: 404 });
+    });
+    renderDetail();
+    await screen.findByTestId("draft-textarea"); // wait for mount
+    fireEvent.keyDown(window, { key: "s" });
+    await waitFor(() => {
+      expect(confirmSpy).toHaveBeenCalled();
+      const c = fetchSpy.mock.calls.find(
+        (c) => String(c[0]) === "/api/v1/messages/m1/skip",
+      );
+      expect(c).toBeDefined();
+    });
+  });
+
+  it("pressing A triggers approve & send (clipboard + window.open + mark-sent)", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText },
+      configurable: true,
+    });
+    const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
+    const fetchSpy = setupFetch((url) => {
+      if (url === "/api/v1/messages/m1") return jsonRes(makeDetail());
+      if (url === "/api/v1/messages/m1/approve") {
+        const body: ApproveDraftResponse = {
+          ok: true,
+          draft: {
+            ...SAMPLE_DRAFT,
+            status: "approved",
+            approved_at: "2026-05-03T10:01:00.000Z",
+          },
+          learned_edit_captured: false,
+        };
+        return jsonRes(body);
+      }
+      if (url === "/api/v1/messages/m1/mark-sent") {
+        const body: MarkSentResponse = {
+          ok: true,
+          sent_at: "2026-05-03T10:02:00.000Z",
+        };
+        return jsonRes(body);
+      }
+      return new Response("not found", { status: 404 });
+    });
+    renderDetail();
+    await screen.findByTestId("draft-textarea");
+    fireEvent.keyDown(window, { key: "a" });
+    await waitFor(() => {
+      expect(writeText).toHaveBeenCalledWith(SAMPLE_DRAFT.draft_text);
+      expect(openSpy).toHaveBeenCalled();
+      const markCall = fetchSpy.mock.calls.find(
+        (c) => String(c[0]) === "/api/v1/messages/m1/mark-sent",
+      );
+      expect(markCall).toBeDefined();
+    });
+  });
+
+  it("does NOT fire shortcuts when typing in the textarea", async () => {
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    const fetchSpy = setupFetch((url) => {
+      if (url === "/api/v1/messages/m1") return jsonRes(makeDetail());
+      return new Response("not found", { status: 404 });
+    });
+    renderDetail();
+    const ta = (await screen.findByTestId("draft-textarea")) as HTMLTextAreaElement;
+    ta.focus();
+    fireEvent.keyDown(ta, { key: "s" });
+    fireEvent.keyDown(ta, { key: "a" });
+    // Give any async fetch a tick to fire (it shouldn't).
+    await new Promise((r) => setTimeout(r, 20));
+    expect(confirmSpy).not.toHaveBeenCalled();
+    const skipCall = fetchSpy.mock.calls.find(
+      (c) => String(c[0]) === "/api/v1/messages/m1/skip",
+    );
+    expect(skipCall).toBeUndefined();
+  });
+
+  it("does NOT fire shortcuts when modifier keys are held (cmd-A still selects text)", async () => {
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    setupFetch(() => jsonRes(makeDetail()));
+    renderDetail();
+    await screen.findByTestId("draft-textarea");
+    fireEvent.keyDown(window, { key: "a", metaKey: true });
+    fireEvent.keyDown(window, { key: "s", ctrlKey: true });
+    await new Promise((r) => setTimeout(r, 20));
+    expect(confirmSpy).not.toHaveBeenCalled();
+  });
 });
