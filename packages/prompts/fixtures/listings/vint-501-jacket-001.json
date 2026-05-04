@@ -1,0 +1,36 @@
+{
+  "ebay_item_id": "vint-501-jacket-001",
+  "title": "Vintage 1990s Levi's Type III Denim Trucker Jacket — Medium Wash",
+  "condition": "Pre-owned — Good. Light fading at cuffs and collar consistent with age. No holes, no stains.",
+  "brand": "Levi's",
+  "size": "M",
+  "color": "Medium indigo wash",
+  "materials": ["100% cotton denim"],
+  "measurements": {
+    "chest_pit_to_pit_in": 22,
+    "shoulder_seam_to_seam_in": 18.5,
+    "sleeve_in": 25,
+    "length_back_collar_to_hem_in": 25.5
+  },
+  "shipping": {
+    "domestic_days": "1-2",
+    "intl_available": true,
+    "intl_days": "7-14",
+    "free_threshold": "Free domestic shipping on orders $50+"
+  },
+  "returns": {
+    "accepted": true,
+    "window_days": 30,
+    "who_pays": "buyer"
+  },
+  "combined_shipping": {
+    "offered": true,
+    "rule": "Combined shipping discount of $4 per additional item when bought together"
+  },
+  "flaws_noted": [
+    "Small fade spot near right cuff (~1cm)",
+    "One brass button replaced with matching original-style button"
+  ],
+  "seller_private_notes": "Sourced from estate sale Sept 2025. Smoke-free home.",
+  "raw_description_excerpt": "Classic Type III trucker. Boxy 90s fit — runs slightly large in chest. Pairs great with a hoodie underneath."
+}

@@ -1,0 +1,16 @@
+{
+  "id": "offer-01",
+  "fixture_message": "messages/offer-01.json",
+  "fixture_listing": "listings/vint-band-tee-014.json",
+  "brandVoice": "friendly",
+  "expected": {
+    "category": "offer_negotiation",
+    "must_use_facts": [],
+    "must_not_flag": [
+      "forbidden_phrase_money",
+      "forbidden_phrase_offplatform",
+      "forbidden_phrase_refund_admission"
+    ],
+    "ideal_draft_excerpts": ["offer", "thanks", "appreciate"]
+  }
+}

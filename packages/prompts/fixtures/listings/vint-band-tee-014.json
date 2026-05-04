@@ -1,0 +1,33 @@
+{
+  "ebay_item_id": "vint-band-tee-014",
+  "title": "Vintage 1995 Smashing Pumpkins Mellon Collie Tour Tee — Single Stitch L",
+  "condition": "Pre-owned — Very Good. Soft hand-feel from years of wear. No holes, no stains, no repairs.",
+  "brand": "Giant",
+  "size": "L",
+  "color": "Black",
+  "materials": ["100% cotton"],
+  "measurements": {
+    "chest_pit_to_pit_in": 21,
+    "length_back_collar_to_hem_in": 28,
+    "shoulder_seam_to_seam_in": 19
+  },
+  "shipping": {
+    "domestic_days": "2-3",
+    "intl_available": false,
+    "free_threshold": "Free domestic shipping on this listing"
+  },
+  "returns": {
+    "accepted": true,
+    "window_days": 14,
+    "who_pays": "buyer"
+  },
+  "combined_shipping": {
+    "offered": true,
+    "rule": "Combine with any other tee from this shop for $3 off the second item"
+  },
+  "flaws_noted": [
+    "Light fading on front graphic — consistent with age, no cracking"
+  ],
+  "seller_private_notes": "Authenticated via tag font + single-stitch sleeve construction + Giant copyright year.",
+  "raw_description_excerpt": "Original 1995 tour tee, single-stitch sleeves, Giant tag. Boxy 90s cut. Listed at $48 firm-ish."
+}

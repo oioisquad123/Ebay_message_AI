@@ -12,6 +12,7 @@
 # Env / secrets
 .env
 .env.*
+!.env.example
 *.p8
 credentials.json
 .mcp.json
@@ -28,6 +29,22 @@ __pycache__/
 *.egg-info/
 .venv/
 venv/
+
+# Build outputs
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+coverage/
+
+# SQLite (V0 local DB)
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+apps/api/data/
 
 # Logs / temp
 *.log

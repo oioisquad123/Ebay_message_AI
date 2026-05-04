@@ -1,0 +1,19 @@
+{
+  "id": "sizing-01",
+  "fixture_message": "messages/sizing-01.json",
+  "fixture_listing": "listings/vint-501-jacket-001.json",
+  "brandVoice": "friendly",
+  "expected": {
+    "category": "sizing_measurements",
+    "must_use_facts": [
+      "listing.measurements.chest_pit_to_pit_in",
+      "listing.measurements.shoulder_seam_to_seam_in"
+    ],
+    "must_not_flag": [
+      "forbidden_phrase_money",
+      "forbidden_phrase_offplatform",
+      "forbidden_phrase_refund_admission"
+    ],
+    "ideal_draft_excerpts": ["22", "18.5"]
+  }
+}

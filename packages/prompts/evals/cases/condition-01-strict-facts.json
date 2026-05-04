@@ -1,0 +1,21 @@
+{
+  "id": "condition-01-strict-facts",
+  "fixture_message": "messages/condition-01.json",
+  "fixture_listing": "listings/vint-band-tee-014.json",
+  "brandVoice": "professional",
+  "expected": {
+    "category": "condition_authenticity",
+    "must_use_facts": [
+      "listing.condition",
+      "listing.flaws_noted",
+      "listing.brand"
+    ],
+    "must_not_flag": [
+      "forbidden_phrase_money",
+      "forbidden_phrase_offplatform",
+      "forbidden_phrase_refund_admission",
+      "ungrounded_claim"
+    ],
+    "ideal_draft_excerpts": ["Giant", "single-stitch"]
+  }
+}

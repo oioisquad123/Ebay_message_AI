@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head><title>eBay Messages — fixture</title></head>
+<body>
+<!--
+  V0 fixture mimicking the eBay Messages page DOM shape.
+  Real eBay uses opaque class names that change frequently; the extension's
+  selector config (served from /api/v1/extension/selectors) defaults to the
+  data-testid attributes used here. The user updates the config via the
+  API endpoint when real eBay's DOM doesn't match — selectors are data,
+  not code (CLAUDE.md #8).
+-->
+<header>
+  <nav>eBay nav stuff that should NOT be ingested</nav>
+</header>
+
+<main>
+  <section data-testid="message-list">
+    <article
+      data-testid="message-thread"
+      data-message-id="msg-2026-05-03-001"
+      data-item-id="234567890123"
+    >
+      <span data-testid="buyer-username">vintage_collector_99</span>
+      <a href="https://www.ebay.com/itm/234567890123" data-testid="item-link">
+        Vintage 90s Levi's 501 Denim Jacket Size M
+      </a>
+      <time data-testid="timestamp" datetime="2026-05-03T10:30:00.000Z">
+        2 hours ago
+      </time>
+      <p data-testid="message-body">
+        Hi! Will this fit me? I'm a US Medium and I've been burned by
+        vintage sizing before. What's the actual chest measurement?
+      </p>
+    </article>
+
+    <article
+      data-testid="message-thread"
+      data-message-id="msg-2026-05-02-014"
+      data-item-id="234567890456"
+    >
+      <span data-testid="buyer-username">denimfan_82</span>
+      <a href="https://www.ebay.com/itm/234567890456" data-testid="item-link">
+        Vintage Band Tee Faded Black Size L
+      </a>
+      <time data-testid="timestamp" datetime="2026-05-02T14:00:00.000Z">
+        1 day ago
+      </time>
+      <p data-testid="message-body">
+        Do you ship to Australia? And how long does it usually take?
+      </p>
+    </article>
+
+    <article
+      data-testid="message-thread"
+      data-message-id="msg-2026-05-01-007"
+      data-item-id="234567890789"
+    >
+      <span data-testid="buyer-username">picky_buyer_42</span>
+      <a href="https://www.ebay.com/itm/234567890789" data-testid="item-link">
+        Vintage Leather Belt Brown Size 32
+      </a>
+      <time data-testid="timestamp" datetime="2026-05-01T08:15:00.000Z">
+        2 days ago
+      </time>
+      <p data-testid="message-body">
+        Could you do $25 instead of $35? Combined shipping with the jacket
+        I bought last week?
+      </p>
+    </article>
+  </section>
+</main>
+
+<footer>
+  <div>eBay footer that should also NOT be ingested</div>
+</footer>
+</body>
+</html>

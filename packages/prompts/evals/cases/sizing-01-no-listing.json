@@ -1,0 +1,17 @@
+{
+  "id": "sizing-01-no-listing",
+  "fixture_message": "messages/sizing-01.json",
+  "fixture_listing": null,
+  "brandVoice": "casual",
+  "expected": {
+    "category": "sizing_measurements",
+    "must_use_facts": [],
+    "must_not_flag": [
+      "forbidden_phrase_money",
+      "forbidden_phrase_offplatform",
+      "forbidden_phrase_refund_admission",
+      "ungrounded_claim"
+    ],
+    "ideal_draft_excerpts": []
+  }
+}
