@@ -269,4 +269,73 @@ describe("buildDraftForMessage", () => {
     ).rejects.toThrow(/message not found/);
     closeDb(db);
   });
+
+  describe("V0 Day 9 — tiered routing", () => {
+    it("routes a sizing question to Haiku", async () => {
+      const db = openDb(":memory:");
+      const messageId = insertTestMessage(db, {
+        body: "What's the chest measurement? US Medium fit?",
+        pii: "What's the chest measurement? US Medium fit?",
+      });
+      const client = makeMockClient([
+        { draft: "22 inches across.", category: "sizing_measurements" },
+      ]);
+      await buildDraftForMessage({ db, messageId, llmOptions: { client } });
+      const sentModel = client.chat.completions.create.mock.calls[0]?.[0]?.model;
+      expect(sentModel).toBe("anthropic/claude-haiku-4-5");
+      closeDb(db);
+    });
+
+    it("routes an offer/negotiation message to Sonnet", async () => {
+      const db = openDb(":memory:");
+      const messageId = insertTestMessage(db, {
+        body: "Would you take $80? Best offer? Drop the price?",
+        pii: "Would you take $80? Best offer? Drop the price?",
+      });
+      const client = makeMockClient([
+        { draft: "Thanks for the offer.", category: "offer_negotiation" },
+      ]);
+      await buildDraftForMessage({ db, messageId, llmOptions: { client } });
+      const sentModel = client.chat.completions.create.mock.calls[0]?.[0]?.model;
+      expect(sentModel).toBe("anthropic/claude-sonnet-4-5");
+      closeDb(db);
+    });
+
+    it("routes unknown text to Sonnet (default-up for safety)", async () => {
+      const db = openDb(":memory:");
+      const messageId = insertTestMessage(db, {
+        body: "Random unrelated text with no triggers.",
+        pii: "Random unrelated text with no triggers.",
+      });
+      const client = makeMockClient([
+        { draft: "Got it.", category: "other_unclear" },
+      ]);
+      await buildDraftForMessage({ db, messageId, llmOptions: { client } });
+      const sentModel = client.chat.completions.create.mock.calls[0]?.[0]?.model;
+      expect(sentModel).toBe("anthropic/claude-sonnet-4-5");
+      closeDb(db);
+    });
+
+    it("respects explicit modelOverride (caller wins over routing)", async () => {
+      const db = openDb(":memory:");
+      const messageId = insertTestMessage(db, {
+        body: "Would you take $80? Best offer?",
+        pii: "Would you take $80? Best offer?",
+      });
+      const client = makeMockClient([
+        { draft: "Thanks.", category: "offer_negotiation" },
+      ]);
+      await buildDraftForMessage({
+        db,
+        messageId,
+        llmOptions: {
+          client,
+          modelOverride: "google/gemini-2.5-flash",
+        },
+      });
+      const sentModel = client.chat.completions.create.mock.calls[0]?.[0]?.model;
+      expect(sentModel).toBe("google/gemini-2.5-flash");
+      closeDb(db);
+    });
+  });
 });

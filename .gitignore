@@ -50,3 +50,6 @@ apps/api/data/
 *.log
 .temp/
 tmp/
+
+# Claude Code harness internals
+.claude/

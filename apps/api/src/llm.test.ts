@@ -98,6 +98,8 @@ describe("computeCostCents", () => {
 describe("generateDraft", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    delete process.env.OPENROUTER_MODEL;
+    delete process.env.OPENROUTER_SONNET_MODEL;
   });
 
   it("returns a valid DraftResponse for a happy-path model output", async () => {
@@ -281,5 +283,103 @@ describe("generateDraft", () => {
 
     const call = client.chat.completions.create.mock.calls[0]?.[0];
     expect(call.model).toBe("google/gemini-2.5-flash");
+  });
+
+  describe("V0 Day 9 — routing precedence ladder", () => {
+    const offerRequest = {
+      ...fixtureRequest,
+      message: {
+        ...fixtureRequest.message,
+        body: "Would you take $80? Best offer? Drop the price?",
+      },
+    };
+
+    it("opts.modelOverride beats env beats routing", async () => {
+      process.env.OPENROUTER_MODEL = "vendor/env-model";
+      const client = makeMockClient({
+        text: JSON.stringify({
+          draft: "ok",
+          confidence: 0.5,
+          category: "offer_negotiation",
+          used_facts: [],
+          flags: [],
+        }),
+      });
+      await generateDraft(offerRequest, {
+        client,
+        modelOverride: "vendor/explicit-override",
+      });
+      const call = client.chat.completions.create.mock.calls[0]?.[0];
+      expect(call.model).toBe("vendor/explicit-override");
+    });
+
+    it("env OPENROUTER_MODEL beats routing when no opts.modelOverride", async () => {
+      process.env.OPENROUTER_MODEL = "vendor/env-model";
+      const client = makeMockClient({
+        text: JSON.stringify({
+          draft: "ok",
+          confidence: 0.5,
+          category: "offer_negotiation",
+          used_facts: [],
+          flags: [],
+        }),
+      });
+      await generateDraft(offerRequest, { client });
+      const call = client.chat.completions.create.mock.calls[0]?.[0];
+      expect(call.model).toBe("vendor/env-model");
+    });
+
+    it("routing kicks in when neither modelOverride nor env is set (offer → Sonnet)", async () => {
+      const client = makeMockClient({
+        text: JSON.stringify({
+          draft: "ok",
+          confidence: 0.5,
+          category: "offer_negotiation",
+          used_facts: [],
+          flags: [],
+        }),
+      });
+      await generateDraft(offerRequest, { client });
+      const call = client.chat.completions.create.mock.calls[0]?.[0];
+      expect(call.model).toBe("anthropic/claude-sonnet-4-5");
+    });
+
+    it("routing kicks in when neither modelOverride nor env is set (sizing → Haiku)", async () => {
+      const sizingRequest = {
+        ...fixtureRequest,
+        message: {
+          ...fixtureRequest.message,
+          body: "What's the chest measurement on this jacket? Size medium fit?",
+        },
+      };
+      const client = makeMockClient({
+        text: JSON.stringify({
+          draft: "22 inches.",
+          confidence: 0.9,
+          category: "sizing_measurements",
+          used_facts: [],
+          flags: [],
+        }),
+      });
+      await generateDraft(sizingRequest, { client });
+      const call = client.chat.completions.create.mock.calls[0]?.[0];
+      expect(call.model).toBe("anthropic/claude-haiku-4-5");
+    });
+
+    it("OPENROUTER_SONNET_MODEL retargets the routed Sonnet without affecting Haiku route", async () => {
+      process.env.OPENROUTER_SONNET_MODEL = "anthropic/claude-sonnet-4-6";
+      const client = makeMockClient({
+        text: JSON.stringify({
+          draft: "ok",
+          confidence: 0.5,
+          category: "offer_negotiation",
+          used_facts: [],
+          flags: [],
+        }),
+      });
+      await generateDraft(offerRequest, { client });
+      const call = client.chat.completions.create.mock.calls[0]?.[0];
+      expect(call.model).toBe("anthropic/claude-sonnet-4-6");
+    });
   });
 });

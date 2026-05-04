@@ -39,6 +39,7 @@ import {
   type LlmDraftOutput,
 } from "@app/shared";
 import { buildDraftPrompt, checkOutputPolicy } from "@app/prompts";
+import { routeModel, type RoutingDecision } from "./services/routing.js";
 
 const DEFAULT_MODEL = "anthropic/claude-haiku-4-5";
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
@@ -233,8 +234,30 @@ export async function generateDraft(
   // harness, repl) might not. Cheap.
   const parsed = DraftRequestSchema.parse(input);
 
-  const model =
-    opts.modelOverride ?? process.env.OPENROUTER_MODEL ?? DEFAULT_MODEL;
+  // V0 Day 9: tiered routing. The precedence ladder is:
+  //   1. opts.modelOverride        — explicit caller override (eval-runner,
+  //      tests, A/B sweeps).
+  //   2. process.env.OPENROUTER_MODEL — operator override (force one model
+  //      across the whole process — e.g. "test on Haiku for an afternoon").
+  //   3. routeModel(body)          — keyword heuristic; Haiku for sizing/
+  //      shipping/greeting/combined-shipping, Sonnet for everything else
+  //      (incl. unknown text, since other_unclear → Sonnet for safety).
+  //   4. DEFAULT_MODEL             — final safety net (Haiku 4.5).
+  let routing: RoutingDecision | null = null;
+  let model: string;
+  if (opts.modelOverride) {
+    model = opts.modelOverride;
+  } else if (process.env.OPENROUTER_MODEL) {
+    model = process.env.OPENROUTER_MODEL;
+  } else {
+    routing = routeModel(parsed.message.body);
+    model = routing.model;
+  }
+  // Sonnet env override (only used as the routing target — not a
+  // process-wide pin). Lets you test Sonnet 4.6 vs 4.5 without code change.
+  if (routing && process.env.OPENROUTER_SONNET_MODEL && model === "anthropic/claude-sonnet-4-5") {
+    model = process.env.OPENROUTER_SONNET_MODEL;
+  }
 
   const client: OpenAILike = opts.client ?? buildOpenRouterClient();
 
