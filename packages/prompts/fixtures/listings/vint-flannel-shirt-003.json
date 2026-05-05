@@ -1,0 +1,35 @@
+{
+  "ebay_item_id": "vint-flannel-shirt-003",
+  "title": "Vintage 90s Pendleton Wool Flannel Shirt — Red/Black Buffalo Plaid — XL",
+  "condition": "Pre-owned — Excellent. Soft hand, no holes, no pilling. Buttons all original.",
+  "brand": "Pendleton",
+  "size": "XL",
+  "color": "Red and black buffalo plaid",
+  "materials": ["100% virgin wool"],
+  "measurements": {
+    "chest_pit_to_pit_in": 25,
+    "length_back_collar_to_hem_in": 31,
+    "shoulder_seam_to_seam_in": 21,
+    "sleeve_in": 26
+  },
+  "shipping": {
+    "domestic_days": "1-2",
+    "intl_available": true,
+    "intl_days": "7-14",
+    "free_threshold": "Free domestic shipping"
+  },
+  "returns": {
+    "accepted": true,
+    "window_days": 14,
+    "who_pays": "buyer"
+  },
+  "combined_shipping": {
+    "offered": true,
+    "rule": "Combine with any other flannel for $5 off the second item"
+  },
+  "flaws_noted": [
+    "Minor fade at collar from sun exposure"
+  ],
+  "seller_private_notes": "Made in USA tag, dates to mid-90s. Smoke-free, pet-free home.",
+  "raw_description_excerpt": "Classic Pendleton wool, heavyweight buffalo check. Perfect over a tee or under a chore coat."
+}

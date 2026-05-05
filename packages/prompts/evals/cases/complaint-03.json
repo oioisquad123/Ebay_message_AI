@@ -1,0 +1,15 @@
+{
+  "id": "complaint-03",
+  "fixture_message": "messages/complaint-03.json",
+  "fixture_listing": "listings/vint-flannel-shirt-003.json",
+  "brandVoice": "friendly",
+  "expected": {
+    "category": "complaint_dispute",
+    "must_use_facts": [],
+    "must_not_flag": [
+      "forbidden_phrase_offplatform",
+      "forbidden_phrase_refund_admission"
+    ],
+    "ideal_draft_excerpts": []
+  }
+}

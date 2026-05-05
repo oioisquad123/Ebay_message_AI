@@ -1,0 +1,34 @@
+{
+  "ebay_item_id": "vint-sneakers-006",
+  "title": "Vintage 1995 Nike Air Jordan 11 Concord OG — Size US 10 — Pre-Owned",
+  "condition": "Pre-owned — Good. Visible wear on outsole. Patent leather has light creasing. No yellowing on icy outsole.",
+  "brand": "Nike",
+  "size": "US 10 (Men's)",
+  "color": "White / Black / Concord Purple",
+  "materials": ["Patent leather upper", "Mesh tongue", "Rubber outsole"],
+  "measurements": {
+    "insole_length_in": 11.25,
+    "boxed_weight_kg": 1.6
+  },
+  "shipping": {
+    "domestic_days": "2-3",
+    "intl_available": false,
+    "free_threshold": "Buyer pays $15 domestic shipping due to shoebox"
+  },
+  "returns": {
+    "accepted": false,
+    "window_days": 0,
+    "who_pays": "buyer"
+  },
+  "combined_shipping": {
+    "offered": false,
+    "rule": "Sneakers ship in their own box — no combined shipping"
+  },
+  "flaws_noted": [
+    "Outsole tread worn ~30% — pictured",
+    "Patent leather creased on both toes",
+    "Original box not included — ships in plain shipping box"
+  ],
+  "seller_private_notes": "Authenticated via stitch count, jumpman placement, and original 1995 production tag inside tongue. Returns NOT accepted on this item.",
+  "raw_description_excerpt": "OG 1995 release, NOT a retro. Smell of authentic 90s patent. Sold as-is, no returns."
+}

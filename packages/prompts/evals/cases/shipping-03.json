@@ -1,0 +1,17 @@
+{
+  "id": "shipping-03",
+  "fixture_message": "messages/shipping-03.json",
+  "fixture_listing": "listings/vint-sweater-005.json",
+  "brandVoice": "professional",
+  "expected": {
+    "category": "shipping_timeline",
+    "must_use_facts": ["listing.shipping.domestic_days"],
+    "must_not_flag": [
+      "forbidden_phrase_money",
+      "forbidden_phrase_offplatform",
+      "forbidden_phrase_refund_admission",
+      "ungrounded_claim"
+    ],
+    "ideal_draft_excerpts": ["2-3"]
+  }
+}

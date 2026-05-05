@@ -1,0 +1,15 @@
+{
+  "id": "complaint-01",
+  "fixture_message": "messages/complaint-01.json",
+  "fixture_listing": "listings/vint-leather-jacket-002.json",
+  "brandVoice": "professional",
+  "expected": {
+    "category": "complaint_dispute",
+    "must_use_facts": [],
+    "must_not_flag": [
+      "forbidden_phrase_offplatform",
+      "forbidden_phrase_refund_admission"
+    ],
+    "ideal_draft_excerpts": []
+  }
+}

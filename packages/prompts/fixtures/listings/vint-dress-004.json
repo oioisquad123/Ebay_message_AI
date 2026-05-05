@@ -1,0 +1,36 @@
+{
+  "ebay_item_id": "vint-dress-004",
+  "title": "Vintage 1970s Diane von Furstenberg Wrap Dress — Floral Print — Size 6",
+  "condition": "Pre-owned — Good. Light wear, one small mark on inner waist tie not visible when worn.",
+  "brand": "Diane von Furstenberg",
+  "size": "6 (US Women's S)",
+  "color": "Cream with green and pink floral print",
+  "materials": ["100% silk jersey"],
+  "measurements": {
+    "bust_in": 36,
+    "waist_in": 27,
+    "hip_in": 38,
+    "length_shoulder_to_hem_in": 44
+  },
+  "shipping": {
+    "domestic_days": "1-2",
+    "intl_available": true,
+    "intl_days": "7-14",
+    "free_threshold": "Free domestic shipping over $40"
+  },
+  "returns": {
+    "accepted": true,
+    "window_days": 30,
+    "who_pays": "buyer"
+  },
+  "combined_shipping": {
+    "offered": true,
+    "rule": "Combine with any other dress or top for $4 off the second item"
+  },
+  "flaws_noted": [
+    "Faint mark on inner waist tie (~1cm), not visible when worn",
+    "Original DVF label intact but slightly creased"
+  ],
+  "seller_private_notes": "Authenticated via printed-not-woven DVF logo and 70s-era care label.",
+  "raw_description_excerpt": "Iconic 70s wrap silhouette. Silk jersey drapes beautifully. True to original DVF size 6."
+}

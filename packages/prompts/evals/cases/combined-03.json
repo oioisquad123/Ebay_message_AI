@@ -1,0 +1,17 @@
+{
+  "id": "combined-03",
+  "fixture_message": "messages/combined-03.json",
+  "fixture_listing": "listings/vint-sneakers-006.json",
+  "brandVoice": "casual",
+  "expected": {
+    "category": "combined_shipping_discount",
+    "must_use_facts": ["listing.combined_shipping.offered"],
+    "must_not_flag": [
+      "forbidden_phrase_money",
+      "forbidden_phrase_offplatform",
+      "forbidden_phrase_refund_admission",
+      "ungrounded_claim"
+    ],
+    "ideal_draft_excerpts": ["combined"]
+  }
+}

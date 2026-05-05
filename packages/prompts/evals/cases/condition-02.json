@@ -1,0 +1,20 @@
+{
+  "id": "condition-02",
+  "fixture_message": "messages/condition-02.json",
+  "fixture_listing": "listings/vint-sneakers-006.json",
+  "brandVoice": "friendly",
+  "expected": {
+    "category": "condition_authenticity",
+    "must_use_facts": [
+      "listing.condition",
+      "listing.flaws_noted"
+    ],
+    "must_not_flag": [
+      "forbidden_phrase_money",
+      "forbidden_phrase_offplatform",
+      "forbidden_phrase_refund_admission",
+      "ungrounded_claim"
+    ],
+    "ideal_draft_excerpts": ["1995", "outsole"]
+  }
+}

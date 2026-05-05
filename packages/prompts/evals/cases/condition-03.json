@@ -1,0 +1,21 @@
+{
+  "id": "condition-03",
+  "fixture_message": "messages/condition-03.json",
+  "fixture_listing": "listings/vint-leather-jacket-002.json",
+  "brandVoice": "friendly",
+  "expected": {
+    "category": "condition_authenticity",
+    "must_use_facts": [
+      "listing.condition",
+      "listing.flaws_noted",
+      "listing.brand"
+    ],
+    "must_not_flag": [
+      "forbidden_phrase_money",
+      "forbidden_phrase_offplatform",
+      "forbidden_phrase_refund_admission",
+      "ungrounded_claim"
+    ],
+    "ideal_draft_excerpts": ["Schott", "lining"]
+  }
+}

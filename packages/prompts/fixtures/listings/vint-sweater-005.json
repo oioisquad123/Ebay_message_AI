@@ -1,0 +1,35 @@
+{
+  "ebay_item_id": "vint-sweater-005",
+  "title": "Vintage 1980s Aran Hand-Knit Wool Fisherman Sweater — Cream — Men's L",
+  "condition": "Pre-owned — Very Good. Lightly worn, no pilling, no holes, no stains.",
+  "brand": "Unbranded (hand-knit Aran Isles)",
+  "size": "L",
+  "color": "Natural cream/ecru",
+  "materials": ["100% undyed wool"],
+  "measurements": {
+    "chest_pit_to_pit_in": 24,
+    "length_back_collar_to_hem_in": 27,
+    "shoulder_seam_to_seam_in": 20,
+    "sleeve_in": 25
+  },
+  "shipping": {
+    "domestic_days": "2-3",
+    "intl_available": true,
+    "intl_days": "7-14",
+    "free_threshold": "Free domestic shipping"
+  },
+  "returns": {
+    "accepted": true,
+    "window_days": 30,
+    "who_pays": "buyer"
+  },
+  "combined_shipping": {
+    "offered": true,
+    "rule": "Combine with any other knit for $5 off the second item"
+  },
+  "flaws_noted": [
+    "Slight stretching at right cuff from wear"
+  ],
+  "seller_private_notes": "Sourced from Donegal, Ireland on travel 2024. Hand-knit cable + honeycomb pattern.",
+  "raw_description_excerpt": "Authentic Aran fisherman knit, undyed wool retains natural lanolin. Heavy at ~1.4kg, will keep you warm in a North Atlantic winter."
+}

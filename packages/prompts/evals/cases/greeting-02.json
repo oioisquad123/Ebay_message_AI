@@ -1,0 +1,17 @@
+{
+  "id": "greeting-02",
+  "fixture_message": "messages/greeting-02.json",
+  "fixture_listing": "listings/vint-band-tee-014.json",
+  "brandVoice": "friendly",
+  "expected": {
+    "category": "generic_greeting",
+    "must_use_facts": [],
+    "must_not_flag": [
+      "forbidden_phrase_money",
+      "forbidden_phrase_offplatform",
+      "forbidden_phrase_refund_admission",
+      "ungrounded_claim"
+    ],
+    "ideal_draft_excerpts": ["thank"]
+  }
+}

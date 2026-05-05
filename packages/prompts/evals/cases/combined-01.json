@@ -1,0 +1,17 @@
+{
+  "id": "combined-01",
+  "fixture_message": "messages/combined-01.json",
+  "fixture_listing": "listings/vint-band-tee-014.json",
+  "brandVoice": "friendly",
+  "expected": {
+    "category": "combined_shipping_discount",
+    "must_use_facts": ["listing.combined_shipping.rule"],
+    "must_not_flag": [
+      "forbidden_phrase_money",
+      "forbidden_phrase_offplatform",
+      "forbidden_phrase_refund_admission",
+      "ungrounded_claim"
+    ],
+    "ideal_draft_excerpts": ["$3", "second"]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "shipping-04",
+  "fixture_message": "messages/shipping-04.json",
+  "fixture_listing": "listings/vint-sneakers-006.json",
+  "brandVoice": "professional",
+  "expected": {
+    "category": "shipping_timeline",
+    "must_use_facts": ["listing.shipping.intl_available"],
+    "must_not_flag": [
+      "forbidden_phrase_money",
+      "forbidden_phrase_offplatform",
+      "forbidden_phrase_refund_admission",
+      "ungrounded_claim"
+    ],
+    "ideal_draft_excerpts": ["domestic", "Japan"]
+  }
+}

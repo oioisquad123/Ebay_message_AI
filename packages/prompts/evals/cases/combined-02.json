@@ -1,0 +1,17 @@
+{
+  "id": "combined-02",
+  "fixture_message": "messages/combined-02.json",
+  "fixture_listing": "listings/vint-flannel-shirt-003.json",
+  "brandVoice": "professional",
+  "expected": {
+    "category": "combined_shipping_discount",
+    "must_use_facts": ["listing.combined_shipping.rule"],
+    "must_not_flag": [
+      "forbidden_phrase_money",
+      "forbidden_phrase_offplatform",
+      "forbidden_phrase_refund_admission",
+      "ungrounded_claim"
+    ],
+    "ideal_draft_excerpts": ["$5", "second"]
+  }
+}

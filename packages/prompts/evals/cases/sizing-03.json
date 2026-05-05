@@ -1,0 +1,20 @@
+{
+  "id": "sizing-03",
+  "fixture_message": "messages/sizing-03.json",
+  "fixture_listing": "listings/vint-dress-004.json",
+  "brandVoice": "professional",
+  "expected": {
+    "category": "sizing_measurements",
+    "must_use_facts": [
+      "listing.measurements.bust_in",
+      "listing.measurements.waist_in"
+    ],
+    "must_not_flag": [
+      "forbidden_phrase_money",
+      "forbidden_phrase_offplatform",
+      "forbidden_phrase_refund_admission",
+      "ungrounded_claim"
+    ],
+    "ideal_draft_excerpts": ["36", "27"]
+  }
+}

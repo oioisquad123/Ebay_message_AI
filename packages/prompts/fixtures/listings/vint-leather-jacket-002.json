@@ -1,0 +1,37 @@
+{
+  "ebay_item_id": "vint-leather-jacket-002",
+  "title": "Vintage 1980s Schott Perfecto 618 Black Leather Moto Jacket — Size 40",
+  "condition": "Pre-owned — Very Good. Beautifully broken-in leather with natural patina. Lining intact. Zippers all functional.",
+  "brand": "Schott NYC",
+  "size": "40 (US Men's M)",
+  "color": "Black",
+  "materials": ["100% steerhide leather", "Quilted polyester lining"],
+  "measurements": {
+    "chest_pit_to_pit_in": 21,
+    "shoulder_seam_to_seam_in": 18,
+    "sleeve_in": 26,
+    "length_back_collar_to_hem_in": 24
+  },
+  "shipping": {
+    "domestic_days": "2-3",
+    "intl_available": true,
+    "intl_days": "10-21",
+    "free_threshold": "Buyer pays $18 domestic shipping due to weight"
+  },
+  "returns": {
+    "accepted": true,
+    "window_days": 30,
+    "who_pays": "buyer"
+  },
+  "combined_shipping": {
+    "offered": false,
+    "rule": "Combined shipping not offered on this listing — leather jackets ship in their own box"
+  },
+  "flaws_noted": [
+    "Light scuffing at right elbow consistent with age",
+    "Belt is missing — pictured without",
+    "Faint scratch on inner zipper plate (~2cm)"
+  ],
+  "seller_private_notes": "Authenticated via Schott zipper pull stamp + Talon zipper main. Sourced from Brooklyn estate.",
+  "raw_description_excerpt": "Iconic 618 Perfecto, classic asymmetrical front zip. Made in USA. Heavy leather, will protect through any weather."
+}
